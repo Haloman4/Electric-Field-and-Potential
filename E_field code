@@ -1,0 +1,70 @@
+import numpy as np
+import sympy as sp
+from sympy import Matrix
+import matplotlib.pyplot as plt
+
+
+#Sympy: Vectors and Vector Calc
+x = sp.Symbol('x')
+y = sp.Symbol('y')
+r = sp.Symbol('r')
+q = sp.Symbol('q')
+k = sp.Symbol('k')
+E_r = (k*q) / r**2
+display(E_r)
+
+V_r = sp.integrate(E_r, r)
+display(V_r)
+
+# Numpy: Numerical Analysis
+x_val = np.linspace(-10, 10, 100)
+y_val = np.linspace(-10, 10, 100)
+X, Y = np.meshgrid(x_val, y_val)
+r_np = np.sqrt((X**2 + Y**2))
+
+E_num_expr = E_r.subs({k: 1, q: 1})
+E_func = sp.lambdify(r, E_num_expr, 'numpy')
+
+E_np = sp.lambdify(r, E_r)
+#E_np2 = E_np.subs(r, r_np)
+#E_val = E_np2(X, Y)
+
+V_num = V_r.subs({k: 1, q: 1})
+V_func = sp.lambdify(r, V_num, 'numpy')
+V_np = V_func(r_np)
+#Matplot: Make Pretty Pictures
+X_val = np.linspace(-1, 1, 10)
+Y_val = np.linspace(-1, 1, 10)
+X, Y = np.meshgrid(X_val, Y_val)
+R = np.sqrt(X**2 + Y**2)
+Theta = np.arctan2(Y, X)
+R[R == 0] = np.nan 
+E_r = 1 / R**2
+E_theta = 0
+
+U = E_r * np.cos(Theta) - E_theta * np.sin(Theta)
+V = E_r * np.sin(Theta) + E_theta * np.cos(Theta)
+
+plt.quiver(X_val, Y_val, U, V, color = 'purple')
+plt.title('Electric Vector Field $E(r)$')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.grid(True)
+plt.show()
+
+V_r = 1 / R
+V_theta = 0
+
+P = V_r * np.cos(Theta) - V_theta * np.sin(Theta)
+
+
+heatmap = plt.pcolormesh(X, Y, V_r, shading='auto', cmap='inferno', vmax=10)
+
+
+plt.colorbar(heatmap, label='Potential $V(r)$')
+
+plt.title('Electric Potential Map $V(r)$')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.show()
